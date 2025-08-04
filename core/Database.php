@@ -3,12 +3,23 @@
 class Database {
     private $conn;
     private $config;
+    
     public function __construct() {
-        $this->config = require_once '../config/database.php';
+        // Hardcode config for now to test
+        $this->config = [
+            'host' => 'localhost',
+            'database' => 'blog',
+            'username' => 'root',
+            'password' => '',
+            'charset' => 'utf8mb4'
+        ];
+        
         try {
             $dsn = "mysql:host={$this->config['host']};dbname={$this->config['database']};charset={$this->config['charset']}";
             $this->conn = new PDO($dsn, $this->config['username'], $this->config['password']);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            $this->conn->exec("SET NAMES utf8mb4");
         }
         catch (PDOException $e) {
             die("Connection failed: " . $e->getMessage());
@@ -31,7 +42,7 @@ class Database {
             $stmt = $this->conn->prepare($sql);
             return $stmt->execute($param);
         }catch (PDOException $e) {
-            die ("execute faild: " . $e->getMessage());
+            die ("execute failed: " . $e->getMessage());
         }
     }
 

@@ -1,8 +1,8 @@
 <?php
 
 namespace client;
-require_once '../core/Controller.php';
-require_once '../models/Post.php';
+require_once __DIR__ . '/../../core/Controller.php';
+require_once __DIR__ . '/../../models/Post.php';
 
 class HomeController extends \Controller{
     private $postModel;
@@ -13,7 +13,7 @@ class HomeController extends \Controller{
 
     // hiển thị trang chủ bài viết 
     public function index() {
-        $posts = $this->postModel->all();
+        $posts = $this->postModel->getAllPublished();
         $this->view('client/home', ['posts' => $posts]);
     }
 

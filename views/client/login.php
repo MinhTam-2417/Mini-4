@@ -58,7 +58,7 @@
             </div>
         <?php endif; ?>
 
-        <form action="/Mini-4/views/client/user.php" method="POST">
+        <form action="/login" method="POST">
             <div class="mb-3">
                 <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
             </div>
@@ -69,7 +69,7 @@
         </form>
 
         <div class="register-link">
-            <a href="/Mini-4/views/client/register.php">Chưa có tài khoản? <strong>Đăng ký</strong></a>
+            <a href="/register">Chưa có tài khoản? <strong>Đăng ký</strong></a>
         </div>
     </div>
 </div>
