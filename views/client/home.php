@@ -64,6 +64,39 @@
         display: none;
       }
     }
+    body.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+.dark-mode .sidebar {
+  background-color: #1e1e1e;
+  border-color: #444;
+}
+
+.dark-mode .sidebar .nav-link {
+  color: #e0e0e0;
+}
+
+.dark-mode .sidebar .nav-link:hover {
+  background-color: #333;
+}
+
+.dark-mode .btn-outline-dark {
+  border-color: #bbb;
+  color: #eee;
+}
+
+.dark-mode .btn-outline-dark:hover {
+  background-color: #eee;
+  color: #000;
+}
+
+.dark-mode .btn-dark {
+  background-color: #333;
+  border-color: #555;
+}
+
   </style>
 </head>
 <body>
@@ -79,6 +112,10 @@
         <a href="#" class="nav-link"><i class="bi bi-heart"></i> Thích</a>
         <a href="/Mini-4/views/client/user.php" class="nav-link"><i class="bi bi-person"></i> Hồ sơ</a>
         <a href="#" class="nav-link"><i class="bi bi-three-dots"></i> Khác</a>
+        <button id="toggle-theme" class="btn btn-outline-dark w-100 rounded-pill mb-2">
+          <i class="bi bi-moon-fill me-1"></i> Chế độ tối
+        </button>
+
 
         <div class="mt-auto w-100 px-3">
           <?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
@@ -98,18 +135,29 @@
       </div>
 
       <!-- Cột phải -->
-      <div class="col-md-3 d-none d-md-block">
-        <div class="right-box">
-          <h5>Đăng nhập hoặc đăng ký Mi4</h5>
-          <p class="text-muted">Xem mọi người đang nói gì và tham gia cuộc trò chuyện.</p>
-          <a href="#" class="btn btn-outline-dark rounded-pill w-100 mb-2">
-            <i class="bi bi-instagram"></i> Tiếp tục bằng Instagram
-          </a>
-          <small class="text-muted">Đăng nhập bằng tên người dùng</small>
-        </div>
-      </div>
+      
     </div>
   </div>
+
+  <script>
+  const toggleBtn = document.getElementById('toggle-theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const savedTheme = localStorage.getItem('theme');
+
+  if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+    document.body.classList.add('dark-mode');
+    toggleBtn.innerHTML = '<i class="bi bi-sun-fill me-1"></i> Chế độ sáng';
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    toggleBtn.innerHTML = isDark
+      ? '<i class="bi bi-sun-fill me-1"></i> Chế độ sáng'
+      : '<i class="bi bi-moon-fill me-1"></i> Chế độ tối';
+  });
+</script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
