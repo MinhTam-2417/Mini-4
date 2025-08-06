@@ -52,15 +52,23 @@
     <div class="login-card">
         <div class="login-title">Đăng nhập</div>
 
-        <?php if (isset($error)): ?>
+        <?php if (isset($_SESSION['error'])): ?>
             <div class="alert alert-danger" role="alert">
-                <?php echo htmlspecialchars($error); ?>
+                <?php echo htmlspecialchars($_SESSION['error']); ?>
             </div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="alert alert-success" role="alert">
+                <?php echo htmlspecialchars($_SESSION['success']); ?>
+            </div>
+            <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
 
-        <form action="/login" method="POST">
+        <form action="/Mini-4/public/login" method="POST">
             <div class="mb-3">
-                <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Tên đăng nhập" required>
             </div>
             <div class="mb-3">
                 <input type="password" class="form-control" id="password" name="password" placeholder="Mật khẩu" required>
@@ -69,7 +77,7 @@
         </form>
 
         <div class="register-link">
-            <a href="/register">Chưa có tài khoản? <strong>Đăng ký</strong></a>
+            <a href="/Mini-4/public/register">Chưa có tài khoản? <strong>Đăng ký</strong></a>
         </div>
     </div>
 </div>

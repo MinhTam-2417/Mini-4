@@ -120,4 +120,16 @@ This project is open source and available under the MIT License.
 
 ## Support
 
-For issues and questions, please create an issue in the project repository. 
+For issues and questions, please create an issue in the project repository.
+
+## Quick Start
+
+### Login Information
+- **Admin**: `admin` / `password`
+- **User 1**: `user1` / `password`
+- **User 2**: `user2` / `password`
+
+### Login Process
+1. Go to `http://localhost/Mini-4/public/login`
+2. Enter username (not email) and password
+3. Click "Đăng nhập" to login 

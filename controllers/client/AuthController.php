@@ -5,13 +5,13 @@ namespace client;
 class AuthController extends \Controller {
     
     public function __construct() {
-        parent::__construct();
+        // No need to call parent constructor
     }
     
     public function login() {
         // Check if user is already logged in
         if (isset($_SESSION['user_id'])) {
-            header('Location: /');
+            header('Location: /Mini-4/public/');
             exit;
         }
         
@@ -20,32 +20,32 @@ class AuthController extends \Controller {
     
     public function doLogin() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /login');
+            header('Location: /Mini-4/public/login');
             exit;
         }
         
-        $email = $_POST['email'] ?? '';
+        $username = $_POST['username'] ?? '';
         $password = $_POST['password'] ?? '';
         
-        if (empty($email) || empty($password)) {
+        if (empty($username) || empty($password)) {
             $_SESSION['error'] = 'Vui lòng nhập đầy đủ thông tin';
-            header('Location: /login');
+            header('Location: /Mini-4/public/login');
             exit;
         }
         
         $userModel = new \User();
-        $user = $userModel->findByEmail($email);
+        $user = $userModel->findByUsername($username);
         
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['role'] = $user['role'];
             
-            header('Location: /');
+            header('Location: /Mini-4/public/');
             exit;
         } else {
-            $_SESSION['error'] = 'Email hoặc mật khẩu không đúng';
-            header('Location: /login');
+            $_SESSION['error'] = 'Tên đăng nhập hoặc mật khẩu không đúng';
+            header('Location: /Mini-4/public/login');
             exit;
         }
     }
@@ -53,7 +53,7 @@ class AuthController extends \Controller {
     public function register() {
         // Check if user is already logged in
         if (isset($_SESSION['user_id'])) {
-            header('Location: /');
+            header('Location: /Mini-4/public/');
             exit;
         }
         
@@ -62,7 +62,7 @@ class AuthController extends \Controller {
     
     public function doRegister() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /register');
+            header('Location: /Mini-4/public/register');
             exit;
         }
         
@@ -75,19 +75,19 @@ class AuthController extends \Controller {
         // Validation
         if (empty($username) || empty($email) || empty($password) || empty($confirm_password)) {
             $_SESSION['error'] = 'Vui lòng nhập đầy đủ thông tin';
-            header('Location: /register');
+            header('Location: /Mini-4/public/register');
             exit;
         }
         
         if ($password !== $confirm_password) {
             $_SESSION['error'] = 'Mật khẩu xác nhận không khớp';
-            header('Location: /register');
+            header('Location: /Mini-4/public/register');
             exit;
         }
         
         if (strlen($password) < 6) {
             $_SESSION['error'] = 'Mật khẩu phải có ít nhất 6 ký tự';
-            header('Location: /register');
+            header('Location: /Mini-4/public/register');
             exit;
         }
         
@@ -96,13 +96,13 @@ class AuthController extends \Controller {
         // Check if username or email already exists
         if ($userModel->findByUsername($username)) {
             $_SESSION['error'] = 'Tên đăng nhập đã tồn tại';
-            header('Location: /register');
+            header('Location: /Mini-4/public/register');
             exit;
         }
         
         if ($userModel->findByEmail($email)) {
             $_SESSION['error'] = 'Email đã tồn tại';
-            header('Location: /register');
+            header('Location: /Mini-4/public/register');
             exit;
         }
         
@@ -118,18 +118,18 @@ class AuthController extends \Controller {
         
         if ($userId) {
             $_SESSION['success'] = 'Đăng ký thành công! Vui lòng đăng nhập';
-            header('Location: /login');
+            header('Location: /Mini-4/public/login');
             exit;
         } else {
             $_SESSION['error'] = 'Có lỗi xảy ra, vui lòng thử lại';
-            header('Location: /register');
+            header('Location: /Mini-4/public/register');
             exit;
         }
     }
     
     public function logout() {
         session_destroy();
-        header('Location: /');
+        header('Location: /Mini-4/public/');
         exit;
     }
 }

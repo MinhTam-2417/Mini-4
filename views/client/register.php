@@ -57,13 +57,21 @@
   <div class="register-box">
     <h3>Tạo tài khoản</h3>
 
-    <?php if (isset($error)): ?>
+    <?php if (isset($_SESSION['error'])): ?>
       <div class="alert alert-danger" role="alert">
-        <?php echo htmlspecialchars($error); ?>
+        <?php echo htmlspecialchars($_SESSION['error']); ?>
       </div>
+      <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['success'])): ?>
+      <div class="alert alert-success" role="alert">
+        <?php echo htmlspecialchars($_SESSION['success']); ?>
+      </div>
+      <?php unset($_SESSION['success']); ?>
     <?php endif; ?>
 
-    <form action="/register" method="POST">
+    <form action="/Mini-4/public/register" method="POST">
       <div class="mb-3">
         <label for="username" class="form-label">Tên đăng nhập</label>
         <input type="text" class="form-control" id="username" name="username" placeholder="Ví dụ: nguyenvana" required>
@@ -92,7 +100,7 @@
       <button type="submit" class="btn btn-dark w-100">Đăng ký</button>
 
       <div class="bottom-text mt-3">
-        <span>Đã có tài khoản? <a href="/login">Đăng nhập</a></span>
+        <span>Đã có tài khoản? <a href="/Mini-4/public/login">Đăng nhập</a></span>
       </div>
     </form>
   </div>

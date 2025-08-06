@@ -149,9 +149,7 @@
         <div class="mt-auto w-100 px-3">
           <?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
           <?php if (isset($_SESSION['user_id'])): ?>
-            <form action="/Mini-4/public/logout" method="POST">
-              <button type="submit" class="btn btn-dark w-100 rounded-pill mt-4">Đăng xuất</button>
-            </form>
+            <a href="/Mini-4/public/logout" class="btn btn-dark w-100 rounded-pill mt-4">Đăng xuất</a>
           <?php else: ?>
             <a href="/Mini-4/public/login" class="btn btn-dark w-100 rounded-pill mt-4">Đăng nhập</a>
           <?php endif; ?>
