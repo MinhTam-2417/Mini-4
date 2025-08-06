@@ -1,4 +1,5 @@
 <?php 
+session_start();
 
 //Điểm vào chính của ứng dụng
 require_once '../core/Router.php';
@@ -15,11 +16,12 @@ $router->addRouter('GET', '/login', 'client/AuthController@login');
 $router->addRouter('POST', '/login', 'client/AuthController@doLogin');
 $router->addRouter('GET', '/register', 'client/AuthController@register');
 $router->addRouter('POST', '/register', 'client/AuthController@doRegister');
+$router->addRouter('GET', '/logout', 'client/AuthController@logout');
 
 
 //Định nghĩa các route cho admin
 $router->addRouter('GET', '/admin', 'admin\DashboardController@index');
-$router->addRouter('GET', '/admin/posts', 'admin\PostCotroller@index');
+$router->addRouter('GET', '/admin/posts', 'admin\PostController@index');
 $router->addRouter('GET', '/admin/posts/create', 'admin\PostController@create');
 $router->addRouter('POST', '/admin/posts', 'admin\PostController@store');
 $router->addRouter('GET', '/admin/posts/(\d+)/edit', 'admin\PostController@edit');

@@ -57,16 +57,29 @@
   <div class="register-box">
     <h3>Tạo tài khoản</h3>
 
-    <?php if (isset($error)): ?>
+    <?php if (isset($_SESSION['error'])): ?>
       <div class="alert alert-danger" role="alert">
-        <?php echo htmlspecialchars($error); ?>
+        <?php echo htmlspecialchars($_SESSION['error']); ?>
       </div>
+      <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['success'])): ?>
+      <div class="alert alert-success" role="alert">
+        <?php echo htmlspecialchars($_SESSION['success']); ?>
+      </div>
+      <?php unset($_SESSION['success']); ?>
     <?php endif; ?>
 
-    <form action="/blog-mini/public/register" method="POST">
+    <form action="/Mini-4/public/register" method="POST">
       <div class="mb-3">
-        <label for="name" class="form-label">Tên hiển thị</label>
-        <input type="text" class="form-control" id="name" name="name" placeholder="Ví dụ: nguyenvana" required>
+        <label for="username" class="form-label">Tên đăng nhập</label>
+        <input type="text" class="form-control" id="username" name="username" placeholder="Ví dụ: nguyenvana" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="full_name" class="form-label">Họ và tên</label>
+        <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Nguyễn Văn A" required>
       </div>
 
       <div class="mb-3">
@@ -87,7 +100,7 @@
       <button type="submit" class="btn btn-dark w-100">Đăng ký</button>
 
       <div class="bottom-text mt-3">
-        <span>Đã có tài khoản? <a href="/Mini-4/views/client/login.php">Đăng nhập</a></span>
+        <span>Đã có tài khoản? <a href="/Mini-4/public/login">Đăng nhập</a></span>
       </div>
     </form>
   </div>
