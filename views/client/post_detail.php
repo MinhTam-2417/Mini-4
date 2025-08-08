@@ -6,32 +6,155 @@
   <title><?php echo htmlspecialchars($post['title']); ?> - Blog Mini</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+  <style>
+    body {
+      background-color: #fafafa;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .sidebar {
+      height: 100vh;
+      background-color: #fff;
+      border-right: 1px solid #ddd;
+      padding: 1rem 0.5rem;
+      position: sticky;
+      top: 0;
+    }
+
+    .sidebar .nav-link {
+      color: #000;
+      font-weight: 500;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 15px;
+      border-radius: 10px;
+      transition: background 0.2s;
+    }
+
+    .sidebar .nav-link:hover {
+      background-color: #f0f0f0;
+      text-decoration: none;
+    }
+
+    .sidebar .logo {
+      font-size: 2rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .main-content {
+      padding: 2rem 1rem;
+    }
+
+    .post-header {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .post-image {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      background-color: #f8f9fa;
+    }
+
+    .post-content {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      padding: 2rem;
+    }
+
+    .comments-section {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .related-posts {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .comment-item {
+      border-bottom: 1px solid #eee;
+      padding: 1rem 0;
+    }
+
+    .comment-item:last-child {
+      border-bottom: none;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+      
+      .post-image {
+        max-height: 250px;
+      }
+      
+      .main-content {
+        padding: 1rem 0.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="container-fluid">
     <div class="row">
-      <!-- Sidebar -->
-      <div class="col-md-2 bg-light p-3">
-        <h4>🧵 Blog Mini</h4>
-        <nav class="nav flex-column">
-          <a class="nav-link" href="/Mini-4/public/">Trang chủ</a>
-          <a class="nav-link" href="#">Tìm kiếm</a>
-          <a class="nav-link" href="#">Bài viết</a>
-        </nav>
+      <!-- Sidebar trái -->
+      <div class="col-md-2 sidebar d-flex flex-column align-items-start">
+        <div class="logo">🧵</div>
+
+        <a href="/Mini-4/public/" class="nav-link"><i class="bi bi-house-door"></i> Trang chủ</a>
+        <a href="/Mini-4/public/search" class="nav-link"><i class="bi bi-search"></i> Tìm kiếm</a>
+        <a href="/Mini-4/public/post/create" class="nav-link"><i class="bi bi-plus-square"></i> Bài viết</a>
+        <a href="#" class="nav-link"><i class="bi bi-heart"></i> Thích</a>
+        <a href="/Mini-4/public/profile" class="nav-link"><i class="bi bi-person"></i> Hồ sơ</a>
+        <a href="#" class="nav-link"><i class="bi bi-three-dots"></i> Khác</a>
+
+        <div class="mt-auto w-100 px-3">
+          <?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
+          <?php if (isset($_SESSION['user_id'])): ?>
+            <a href="/Mini-4/public/logout" class="btn btn-dark w-100 rounded-pill mt-4">Đăng xuất</a>
+          <?php else: ?>
+            <a href="/Mini-4/public/login" class="btn btn-dark w-100 rounded-pill mt-4">Đăng nhập</a>
+          <?php endif; ?>
+        </div>
       </div>
 
       <!-- Nội dung chính -->
-      <div class="col-md-8 p-4">
+      <div class="col-md-10 main-content">
         <!-- Header bài viết -->
-        <div class="card mb-4">
-          <div class="card-body">
-            <h1 class="card-title"><?php echo htmlspecialchars($post['title']); ?></h1>
+        <div class="post-header">
+          <?php if (!empty($post['featured_image'])): ?>
+            <img src="/Mini-4/public/<?php echo htmlspecialchars($post['featured_image']); ?>" 
+                 alt="<?php echo htmlspecialchars($post['title']); ?>" 
+                 class="post-image"
+                 style="object-fit: <?php echo htmlspecialchars($post['image_fit'] ?? 'contain'); ?>;">
+          <?php endif; ?>
+          
+          <div class="p-4">
+            <h1 class="mb-3"><?php echo htmlspecialchars($post['title']); ?></h1>
             <div class="text-muted mb-3">
               <i class="bi bi-person"></i> <?php echo htmlspecialchars($post['author_name']); ?>
               <span class="mx-2">•</span>
               <i class="bi bi-calendar"></i> <?php echo date('d/m/Y', strtotime($post['created_at'])); ?>
               <span class="mx-2">•</span>
-              <i class="bi bi-eye"></i> <?php echo $post['view_count']; ?> lượt xem
+              <i class="bi bi-eye"></i> <?php echo $post['view_count'] ?? 0; ?> lượt xem
               <?php if ($post['category_name']): ?>
                 <span class="mx-2">•</span>
                 <span class="badge bg-primary"><?php echo htmlspecialchars($post['category_name']); ?></span>
@@ -41,17 +164,15 @@
         </div>
 
         <!-- Nội dung bài viết -->
-        <div class="card mb-4">
-          <div class="card-body">
-            <div class="post-content">
-              <?php echo nl2br(htmlspecialchars($post['content'])); ?>
-            </div>
+        <div class="post-content">
+          <div class="post-content-text">
+            <?php echo nl2br(htmlspecialchars($post['content'])); ?>
           </div>
         </div>
 
         <!-- Phần bình luận -->
-        <div class="card mb-4">
-          <div class="card-body">
+        <div class="comments-section">
+          <div class="p-4">
             <h5><i class="bi bi-chat-dots"></i> Bình luận (<?php echo count($comments); ?>)</h5>
             
             <?php if (isset($_SESSION['user_id'])): ?>
@@ -70,7 +191,7 @@
             <div class="comments-list">
               <?php if (!empty($comments)): ?>
                 <?php foreach ($comments as $comment): ?>
-                  <div class="border-bottom pb-3 mb-3">
+                  <div class="comment-item">
                     <div class="d-flex justify-content-between">
                       <strong><?php echo htmlspecialchars($comment['username']); ?></strong>
                       <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($comment['created_at'])); ?></small>
@@ -89,8 +210,8 @@
 
         <!-- Bài viết liên quan -->
         <?php if (!empty($relatedPosts)): ?>
-          <div class="card">
-            <div class="card-body">
+          <div class="related-posts">
+            <div class="p-4">
               <h5><i class="bi bi-link-45deg"></i> Bài viết liên quan</h5>
               <?php foreach ($relatedPosts as $relatedPost): ?>
                 <div class="border-bottom pb-2 mb-2">
@@ -107,17 +228,6 @@
             </div>
           </div>
         <?php endif; ?>
-      </div>
-
-      <!-- Cột phải -->
-      <div class="col-md-2">
-        <div class="card">
-          <div class="card-body text-center">
-            <h6>Đăng nhập</h6>
-            <p class="text-muted small">Tham gia cuộc trò chuyện</p>
-            <a href="/Mini-4/public/login" class="btn btn-outline-primary btn-sm">Đăng nhập</a>
-          </div>
-        </div>
       </div>
     </div>
   </div>

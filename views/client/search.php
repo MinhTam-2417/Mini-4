@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Blog Mini</title>
+  <title>Tìm kiếm - Blog Mini</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 
@@ -50,13 +50,12 @@
       padding: 2rem 1rem;
     }
 
-    .right-box {
-      background-color: #fff;
-      border: 1px solid #ddd;
+    .search-box {
+      background: #fff;
       border-radius: 12px;
-      padding: 1.5rem;
-      margin-top: 2rem;
-      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
     }
 
     .post-card {
@@ -80,10 +79,6 @@
       justify-content: center;
       color: white;
       font-size: 3rem;
-      background-size: contain;
-      background-position: center;
-      background-repeat: no-repeat;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
     .post-content {
@@ -129,17 +124,15 @@
       color: #0056b3;
     }
 
+    .search-highlight {
+      background-color: #fff3cd;
+      padding: 0.1rem 0.2rem;
+      border-radius: 3px;
+    }
+
     @media (max-width: 768px) {
       .sidebar {
         display: none;
-      }
-      
-      .post-image {
-        height: 150px;
-      }
-      
-      .main-content {
-        padding: 1rem 0.5rem;
       }
     }
   </style>
@@ -152,14 +145,11 @@
         <div class="logo">🧵</div>
 
         <a href="/Mini-4/public/" class="nav-link"><i class="bi bi-house-door"></i> Trang chủ</a>
-        <a href="/Mini-4/public/search" class="nav-link"><i class="bi bi-search"></i> Tìm kiếm</a>
+        <a href="/Mini-4/public/search" class="nav-link active"><i class="bi bi-search"></i> Tìm kiếm</a>
         <a href="/Mini-4/public/post/create" class="nav-link"><i class="bi bi-plus-square"></i> Bài viết</a>
         <a href="#" class="nav-link"><i class="bi bi-heart"></i> Thích</a>
-                 <a href="/Mini-4/public/profile" class="nav-link"><i class="bi bi-person"></i> Hồ sơ</a>
-         <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-           <a href="/Mini-4/public/admin" class="nav-link"><i class="bi bi-gear"></i> Admin Panel</a>
-         <?php endif; ?>
-         <a href="#" class="nav-link"><i class="bi bi-three-dots"></i> Khác</a>
+        <a href="/Mini-4/public/profile" class="nav-link"><i class="bi bi-person"></i> Hồ sơ</a>
+        <a href="#" class="nav-link"><i class="bi bi-three-dots"></i> Khác</a>
 
         <div class="mt-auto w-100 px-3">
           <?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
@@ -172,40 +162,75 @@
       </div>
 
       <!-- Nội dung chính -->
-      <div class="col-md-7 main-content">
-        <!-- Thanh tìm kiếm nhanh -->
-        <div class="card mb-4">
-          <div class="card-body">
-            <form method="GET" action="/Mini-4/public/search" class="d-flex">
-              <input type="text" class="form-control me-2" name="q" placeholder="Tìm kiếm bài viết..." required>
-              <button type="submit" class="btn btn-primary">
-                <i class="bi bi-search"></i>
-              </button>
-            </form>
-          </div>
-        </div>
+      <div class="col-md-10 main-content">
+        <h2 class="mb-4"><i class="bi bi-search"></i> Tìm kiếm bài viết</h2>
         
-        <h2 class="mb-4">Bài viết mới nhất</h2>
+        <!-- Form tìm kiếm -->
+        <div class="search-box">
+          <form method="GET" action="/Mini-4/public/search">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="q" class="form-label">Từ khóa tìm kiếm</label>
+                  <input type="text" class="form-control" id="q" name="q" 
+                         value="<?php echo htmlspecialchars($keyword); ?>" 
+                         placeholder="Nhập từ khóa tìm kiếm..." required>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="category" class="form-label">Danh mục</label>
+                  <select class="form-select" id="category" name="category">
+                    <option value="">Tất cả danh mục</option>
+                    <?php foreach ($categories as $cat): ?>
+                      <option value="<?php echo $cat['id']; ?>" 
+                              <?php echo ($selectedCategory == $cat['id']) ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($cat['name']); ?>
+                      </option>
+                    <?php endforeach; ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="mb-3">
+                  <label class="form-label">&nbsp;</label>
+                  <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Tìm kiếm
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Kết quả tìm kiếm -->
+        <?php if (!empty($keyword)): ?>
+          <div class="mb-4">
+            <h4>Kết quả tìm kiếm cho "<?php echo htmlspecialchars($keyword); ?>"</h4>
+            <p class="text-muted">Tìm thấy <?php echo count($posts); ?> bài viết</p>
+          </div>
+        <?php endif; ?>
         
         <?php if (!empty($posts)): ?>
           <?php foreach ($posts as $post): ?>
-                         <div class="post-card">
-                            <?php if (!empty($post['featured_image'])): ?>
-               <div class="post-image" style="background-image: url('/Mini-4/public/<?php echo htmlspecialchars($post['featured_image']); ?>'); background-size: <?php echo htmlspecialchars($post['image_fit'] ?? 'contain'); ?>; background-position: center;">
-               </div>
-             <?php else: ?>
-               <div class="post-image">
-                 <i class="bi bi-file-text"></i>
-               </div>
-             <?php endif; ?>
-               <div class="post-content">
-                 <h3 class="post-title">
-                   <a href="/Mini-4/public/post/<?php echo $post['id']; ?>" class="text-decoration-none text-dark">
-                     <?php echo htmlspecialchars($post['title']); ?>
-                   </a>
-                 </h3>
+            <div class="post-card">
+              <div class="post-image">
+                <i class="bi bi-file-text"></i>
+              </div>
+              <div class="post-content">
+                <h3 class="post-title">
+                  <a href="/Mini-4/public/post/<?php echo $post['id']; ?>" class="text-decoration-none text-dark">
+                    <?php echo htmlspecialchars($post['title']); ?>
+                  </a>
+                </h3>
                 <p class="post-excerpt">
-                  <?php echo htmlspecialchars($post['excerpt'] ?: substr($post['content'], 0, 150) . '...'); ?>
+                  <?php 
+                    $excerpt = $post['excerpt'] ?: substr($post['content'], 0, 200) . '...';
+                    if (!empty($keyword)) {
+                      $excerpt = str_ireplace($keyword, '<span class="search-highlight">' . $keyword . '</span>', $excerpt);
+                    }
+                    echo $excerpt;
+                  ?>
                 </p>
                 <div class="post-meta">
                   <div>
@@ -224,29 +249,23 @@
               </div>
             </div>
           <?php endforeach; ?>
+        <?php elseif (!empty($keyword)): ?>
+          <div class="text-center py-5">
+            <i class="bi bi-search display-1 text-muted"></i>
+            <h3 class="mt-3">Không tìm thấy kết quả</h3>
+            <p class="text-muted">Thử với từ khóa khác hoặc danh mục khác</p>
+          </div>
         <?php else: ?>
           <div class="text-center py-5">
-            <i class="bi bi-inbox display-1 text-muted"></i>
-            <h3 class="mt-3">Chưa có bài viết nào</h3>
-            <p class="text-muted">Hãy quay lại sau để xem các bài viết mới nhất!</p>
+            <i class="bi bi-search display-1 text-muted"></i>
+            <h3 class="mt-3">Nhập từ khóa để tìm kiếm</h3>
+            <p class="text-muted">Tìm kiếm trong tiêu đề, nội dung và mô tả bài viết</p>
           </div>
         <?php endif; ?>
-      </div>
-
-      <!-- Cột phải -->
-      <div class="col-md-3 d-none d-md-block">
-        <div class="right-box">
-          <h5>Đăng nhập hoặc đăng ký Mi4</h5>
-          <p class="text-muted">Xem mọi người đang nói gì và tham gia cuộc trò chuyện.</p>
-          <a href="#" class="btn btn-outline-dark rounded-pill w-100 mb-2">
-            <i class="bi bi-instagram"></i> Tiếp tục bằng Instagram
-          </a>
-          <small class="text-muted">Đăng nhập bằng tên người dùng</small>
-        </div>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>
+</html> 

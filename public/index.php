@@ -10,8 +10,15 @@ $router = new Router();
 
 //định nghĩa các router cho client (khách hàng)
 $router->addRouter('GET', '/', 'client/HomeController@index');
+$router->addRouter('GET', '/post/create', 'client/PostController@create');
+$router->addRouter('POST', '/post/store', 'client/PostController@store');
 $router->addRouter('GET', '/post/(\d+)', 'client/PostController@show');
 $router->addRouter('POST', '/post/(\d+)/comment', 'client/PostController@comment');
+$router->addRouter('GET', '/search', 'client/SearchController@index');
+$router->addRouter('GET', '/profile', 'client/ProfileController@index');
+$router->addRouter('POST', '/profile/update', 'client/ProfileController@update');
+$router->addRouter('POST', '/profile/change-password', 'client/ProfileController@changePassword');
+$router->addRouter('GET', '/user', 'client/ProfileController@index'); // Redirect /user to /profile
 $router->addRouter('GET', '/login', 'client/AuthController@login');
 $router->addRouter('POST', '/login', 'client/AuthController@doLogin');
 $router->addRouter('GET', '/register', 'client/AuthController@register');

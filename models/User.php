@@ -46,18 +46,16 @@ class User extends Model {
     
     public function update($id, $data) {
         $sql = "UPDATE {$this->table} SET 
-                username = ?, 
                 email = ?, 
                 full_name = ?, 
-                role = ?, 
+                bio = ?, 
                 updated_at = NOW() 
                 WHERE id = ?";
         
         return $this->db->execute($sql, [
-            $data['username'],
             $data['email'],
             $data['full_name'],
-            $data['role'],
+            $data['bio'] ?? '',
             $id
         ]);
     }
@@ -67,9 +65,14 @@ class User extends Model {
         return $this->db->execute($sql, [$id]);
     }
     
-    public function updatePassword($id, $password) {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    public function updatePassword($id, $hashedPassword) {
         $sql = "UPDATE {$this->table} SET password = ?, updated_at = NOW() WHERE id = ?";
         return $this->db->execute($sql, [$hashedPassword, $id]);
+    }
+
+    public function getTotalUsers() {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+        $result = $this->db->query($sql);
+        return $result[0]['total'] ?? 0;
     }
 }

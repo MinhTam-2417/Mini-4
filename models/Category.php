@@ -62,5 +62,11 @@ class Category extends Model {
         $sql = "DELETE FROM {$this->table} WHERE id = ?";
         return $this->db->execute($sql, [$id]);
     }
+
+    public function getTotalCategories() {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+        $result = $this->db->query($sql);
+        return $result[0]['total'] ?? 0;
+    }
 }
 ?>

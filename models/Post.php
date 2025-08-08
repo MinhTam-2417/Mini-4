@@ -58,16 +58,93 @@ class Post extends Model {
     }
 
     // Tìm kiếm bài viết
-    public function search($keyword) {
+    public function search($keyword, $category = '') {
         $keyword = "%{$keyword}%";
+        
         $sql = "SELECT p.*, u.username as author_name, c.name as category_name 
                 FROM posts p 
                 LEFT JOIN users u ON p.user_id = u.id 
                 LEFT JOIN categories c ON p.category_id = c.id 
                 WHERE (p.title LIKE ? OR p.content LIKE ? OR p.excerpt LIKE ?) 
-                AND p.status = 'published' 
+                AND p.status = 'published'";
+        
+        $params = [$keyword, $keyword, $keyword];
+        
+        if (!empty($category)) {
+            $sql .= " AND p.category_id = ?";
+            $params[] = $category;
+        }
+        
+        $sql .= " ORDER BY p.created_at DESC";
+        
+        return $this->db->query($sql, $params);
+    }
+
+    // Lấy bài viết theo user
+    public function getPostsByUser($userId) {
+        $sql = "SELECT p.*, c.name as category_name 
+                FROM posts p 
+                LEFT JOIN categories c ON p.category_id = c.id 
+                WHERE p.user_id = ? 
                 ORDER BY p.created_at DESC";
-        return $this->db->query($sql, [$keyword, $keyword, $keyword]);
+        return $this->db->query($sql, [$userId]);
+    }
+
+    // Tạo bài viết mới
+    public function create($data) {
+        $sql = "INSERT INTO {$this->table} (title, slug, content, excerpt, featured_image, image_fit, category_id, user_id, status, created_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+        
+        $this->db->execute($sql, [
+            $data['title'],
+            $data['slug'],
+            $data['content'],
+            $data['excerpt'],
+            $data['featured_image'],
+            $data['image_fit'],
+            $data['category_id'],
+            $data['user_id'],
+            $data['status']
+        ]);
+        
+        return $this->db->lastInsertID();
+    }
+
+    // Tăng lượt xem
+    public function incrementViews($id) {
+        $sql = "UPDATE {$this->table} SET view_count = view_count + 1 WHERE id = ?";
+        return $this->db->execute($sql, [$id]);
+    }
+
+    public function getTotalPosts() {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+        $result = $this->db->query($sql);
+        return $result[0]['total'] ?? 0;
+    }
+
+    public function getRecentPosts($limit = 5) {
+        $sql = "SELECT p.*, u.username as author_name, c.name as category_name 
+                FROM {$this->table} p 
+                LEFT JOIN users u ON p.user_id = u.id 
+                LEFT JOIN categories c ON p.category_id = c.id 
+                ORDER BY p.created_at DESC 
+                LIMIT " . (int)$limit;
+        return $this->db->query($sql);
+    }
+
+    public function getAllPostsWithDetails() {
+        $sql = "SELECT p.*, u.username as author_name, c.name as category_name 
+                FROM {$this->table} p 
+                LEFT JOIN users u ON p.user_id = u.id 
+                LEFT JOIN categories c ON p.category_id = c.id 
+                ORDER BY p.created_at DESC";
+        return $this->db->query($sql);
+    }
+
+    public function findById($id) {
+        $sql = "SELECT * FROM {$this->table} WHERE id = ?";
+        $result = $this->db->query($sql, [$id]);
+        return $result ? $result[0] : null;
     }
 }
 ?>

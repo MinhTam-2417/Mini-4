@@ -41,7 +41,12 @@ class AuthController extends \Controller {
             $_SESSION['username'] = $user['username'];
             $_SESSION['role'] = $user['role'];
             
-            header('Location: /Mini-4/public/');
+            // Redirect admin to admin panel
+            if ($user['role'] === 'admin') {
+                header('Location: /Mini-4/public/admin');
+            } else {
+                header('Location: /Mini-4/public/');
+            }
             exit;
         } else {
             $_SESSION['error'] = 'Tên đăng nhập hoặc mật khẩu không đúng';

@@ -34,6 +34,30 @@ class Router{
                     require_once __DIR__ . '/../models/Category.php';
                     require_once __DIR__ . '/../models/Comment.php';
                     
+                    // Require SearchController if needed
+                    if (strpos($controller, 'SearchController') !== false) {
+                        require_once __DIR__ . '/../controllers/client/SearchController.php';
+                    }
+                    
+                    // Require ProfileController if needed
+                    if (strpos($controller, 'ProfileController') !== false) {
+                        require_once __DIR__ . '/../controllers/client/ProfileController.php';
+                    }
+                    
+                    // Require PostController if needed
+                    if (strpos($controller, 'PostController') !== false) {
+                        require_once __DIR__ . '/../controllers/client/PostController.php';
+                    }
+                    
+                    // Require admin controllers if needed
+                    if (strpos($controller, 'admin/') === 0) {
+                        require_once __DIR__ . '/../controllers/admin/DashboardController.php';
+                        require_once __DIR__ . '/../controllers/admin/PostController.php';
+                        require_once __DIR__ . '/../controllers/admin/CategoryController.php';
+                        require_once __DIR__ . '/../controllers/admin/CommentController.php';
+                        require_once __DIR__ . '/../controllers/admin/UserController.php';
+                    }
+                    
                     require_once $controllerFile;
                     
                     // Xử lý namespace cho controller
