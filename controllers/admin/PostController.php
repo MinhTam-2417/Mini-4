@@ -34,29 +34,213 @@ class PostController extends \Controller {
 
     // Lưu bài viết mới
     public function store() {
-        // Implementation sẽ thêm sau
-        header('Location: /Mini-4/public/admin/posts');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /Mini-4/public/admin/posts/create');
+            exit;
+        }
+
+        $title = $_POST['title'] ?? '';
+        $content = $_POST['content'] ?? '';
+        $excerpt = $_POST['excerpt'] ?? '';
+        $categoryId = $_POST['category_id'] ?? '';
+        $action = $_POST['action'] ?? 'draft';
+        $status = ($action === 'publish') ? 'published' : 'draft';
+        $imageFit = $_POST['image_fit'] ?? 'contain';
+
+        // Validation
+        if (empty($title) || empty($content)) {
+            $_SESSION['error'] = 'Vui lòng nhập tiêu đề và nội dung bài viết';
+            header('Location: /Mini-4/public/admin/posts/create');
+            exit;
+        }
+
+        // Tạo slug từ title
+        $slug = $this->createSlug($title);
+
+        // Tạo excerpt nếu không có
+        if (empty($excerpt)) {
+            $excerpt = substr(strip_tags($content), 0, 200) . '...';
+        }
+
+        // Xử lý upload hình ảnh
+        $featuredImage = null;
+        if (isset($_FILES['featured_image']) && $_FILES['featured_image']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/../../public/uploads/images/';
+            $fileExtension = strtolower(pathinfo($_FILES['featured_image']['name'], PATHINFO_EXTENSION));
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            
+            if (in_array($fileExtension, $allowedExtensions)) {
+                $fileName = uniqid() . '_' . time() . '.' . $fileExtension;
+                $uploadPath = $uploadDir . $fileName;
+                
+                if (move_uploaded_file($_FILES['featured_image']['tmp_name'], $uploadPath)) {
+                    $featuredImage = 'uploads/images/' . $fileName;
+                } else {
+                    $_SESSION['error'] = 'Có lỗi xảy ra khi upload hình ảnh';
+                    header('Location: /Mini-4/public/admin/posts/create');
+                    exit;
+                }
+            } else {
+                $_SESSION['error'] = 'Chỉ chấp nhận file hình ảnh (JPG, PNG, GIF, WebP)';
+                header('Location: /Mini-4/public/admin/posts/create');
+                exit;
+            }
+        }
+
+        $postData = [
+            'title' => $title,
+            'slug' => $slug,
+            'content' => $content,
+            'excerpt' => $excerpt,
+            'featured_image' => $featuredImage,
+            'image_fit' => $imageFit,
+            'category_id' => $categoryId ?: null,
+            'user_id' => $_SESSION['user_id'],
+            'status' => $status
+        ];
+
+        $postId = $this->postModel->create($postData);
+
+        if ($postId) {
+            $_SESSION['success'] = 'Bài viết đã được tạo thành công!';
+            header('Location: /Mini-4/public/admin/posts');
+        } else {
+            $_SESSION['error'] = 'Có lỗi xảy ra khi tạo bài viết';
+            header('Location: /Mini-4/public/admin/posts/create');
+        }
         exit;
     }
 
     // Hiển thị form sửa bài viết
     public function edit($id) {
         $post = $this->postModel->findById($id);
+        if (!$post) {
+            $_SESSION['error'] = 'Không tìm thấy bài viết';
+            header('Location: /Mini-4/public/admin/posts');
+            exit;
+        }
+        
         $categories = $this->categoryModel->getAll();
         $this->view('admin/posts/edit', ['post' => $post, 'categories' => $categories]);
     }
 
     // Cập nhật bài viết
     public function update($id) {
-        // Implementation sẽ thêm sau
-        header('Location: /Mini-4/public/admin/posts');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /Mini-4/public/admin/posts/' . $id . '/edit');
+            exit;
+        }
+
+        $post = $this->postModel->findById($id);
+        if (!$post) {
+            $_SESSION['error'] = 'Không tìm thấy bài viết';
+            header('Location: /Mini-4/public/admin/posts');
+            exit;
+        }
+
+        $title = $_POST['title'] ?? '';
+        $content = $_POST['content'] ?? '';
+        $excerpt = $_POST['excerpt'] ?? '';
+        $categoryId = $_POST['category_id'] ?? '';
+        $action = $_POST['action'] ?? 'draft';
+        $status = ($action === 'publish') ? 'published' : 'draft';
+        $imageFit = $_POST['image_fit'] ?? 'contain';
+
+        // Validation
+        if (empty($title) || empty($content)) {
+            $_SESSION['error'] = 'Vui lòng nhập tiêu đề và nội dung bài viết';
+            header('Location: /Mini-4/public/admin/posts/' . $id . '/edit');
+            exit;
+        }
+
+        // Tạo slug từ title
+        $slug = $this->createSlug($title);
+
+        // Tạo excerpt nếu không có
+        if (empty($excerpt)) {
+            $excerpt = substr(strip_tags($content), 0, 200) . '...';
+        }
+
+        // Xử lý upload hình ảnh mới
+        $featuredImage = $post['featured_image']; // Giữ lại hình cũ
+        if (isset($_FILES['featured_image']) && $_FILES['featured_image']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/../../public/uploads/images/';
+            $fileExtension = strtolower(pathinfo($_FILES['featured_image']['name'], PATHINFO_EXTENSION));
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            
+            if (in_array($fileExtension, $allowedExtensions)) {
+                $fileName = uniqid() . '_' . time() . '.' . $fileExtension;
+                $uploadPath = $uploadDir . $fileName;
+                
+                if (move_uploaded_file($_FILES['featured_image']['tmp_name'], $uploadPath)) {
+                    // Xóa hình cũ nếu có
+                    if ($post['featured_image'] && file_exists(__DIR__ . '/../../public/' . $post['featured_image'])) {
+                        unlink(__DIR__ . '/../../public/' . $post['featured_image']);
+                    }
+                    $featuredImage = 'uploads/images/' . $fileName;
+                } else {
+                    $_SESSION['error'] = 'Có lỗi xảy ra khi upload hình ảnh';
+                    header('Location: /Mini-4/public/admin/posts/' . $id . '/edit');
+                    exit;
+                }
+            } else {
+                $_SESSION['error'] = 'Chỉ chấp nhận file hình ảnh (JPG, PNG, GIF, WebP)';
+                header('Location: /Mini-4/public/admin/posts/' . $id . '/edit');
+                exit;
+            }
+        }
+
+        $postData = [
+            'title' => $title,
+            'slug' => $slug,
+            'content' => $content,
+            'excerpt' => $excerpt,
+            'featured_image' => $featuredImage,
+            'image_fit' => $imageFit,
+            'category_id' => $categoryId ?: null,
+            'status' => $status
+        ];
+
+        if ($this->postModel->update($id, $postData)) {
+            $_SESSION['success'] = 'Bài viết đã được cập nhật thành công!';
+            header('Location: /Mini-4/public/admin/posts');
+        } else {
+            $_SESSION['error'] = 'Có lỗi xảy ra khi cập nhật bài viết';
+            header('Location: /Mini-4/public/admin/posts/' . $id . '/edit');
+        }
         exit;
     }
 
     // Xóa bài viết
     public function delete($id) {
-        // Implementation sẽ thêm sau
+        $post = $this->postModel->findById($id);
+        if (!$post) {
+            $_SESSION['error'] = 'Không tìm thấy bài viết';
+            header('Location: /Mini-4/public/admin/posts');
+            exit;
+        }
+
+        // Xóa hình ảnh nếu có
+        if ($post['featured_image'] && file_exists(__DIR__ . '/../../public/' . $post['featured_image'])) {
+            unlink(__DIR__ . '/../../public/' . $post['featured_image']);
+        }
+
+        if ($this->postModel->delete($id)) {
+            $_SESSION['success'] = 'Bài viết đã được xóa thành công!';
+        } else {
+            $_SESSION['error'] = 'Có lỗi xảy ra khi xóa bài viết';
+        }
+        
         header('Location: /Mini-4/public/admin/posts');
         exit;
+    }
+
+    // Tạo slug từ title
+    private function createSlug($title) {
+        $slug = strtolower(trim($title));
+        $slug = preg_replace('/[^a-z0-9-]/', '-', $slug);
+        $slug = preg_replace('/-+/', '-', $slug);
+        $slug = trim($slug, '-');
+        return $slug;
     }
 }

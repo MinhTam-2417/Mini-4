@@ -186,7 +186,9 @@
 
         <a href="/Mini-4/public/" class="nav-link"><i class="bi bi-house-door"></i> Trang chủ</a>
         <a href="/Mini-4/public/search" class="nav-link"><i class="bi bi-search"></i> Tìm kiếm</a>
-        <a href="/Mini-4/public/post/create" class="nav-link"><i class="bi bi-plus-square"></i> Bài viết</a>
+        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+          <a href="/Mini-4/public/post/create" class="nav-link"><i class="bi bi-plus-square"></i> Tạo bài viết</a>
+        <?php endif; ?>
         <a href="#" class="nav-link"><i class="bi bi-heart"></i> Thích</a>
         <a href="/Mini-4/public/user" class="nav-link"><i class="bi bi-person"></i> Hồ sơ</a>
         <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
@@ -209,6 +211,23 @@
 
       <!-- Nội dung chính -->
       <div class="col-md-7 main-content">
+        <!-- Hiển thị thông báo -->
+        <?php if (isset($_SESSION['success'])): ?>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <?php echo htmlspecialchars($_SESSION['success']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+          <?php unset($_SESSION['success']); ?>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error'])): ?>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <?php echo htmlspecialchars($_SESSION['error']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+          <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+
         <!-- Thanh tìm kiếm nhanh -->
         <div class="card mb-4">
           <div class="card-body">

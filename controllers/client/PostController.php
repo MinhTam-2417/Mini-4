@@ -17,10 +17,12 @@ class PostController extends \Controller {
         $this->commentModel = new \Comment();
     }
 
-    // Hiển thị trang tạo bài viết
+    // Hiển thị trang tạo bài viết - CHỈ ADMIN MỚI ĐƯỢC TRUY CẬP
     public function create() {
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: /Mini-4/public/login');
+        // Kiểm tra quyền admin
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+            $_SESSION['error'] = 'Bạn không có quyền truy cập trang này. Chỉ admin mới được tạo bài viết.';
+            header('Location: /Mini-4/public/');
             exit;
         }
 
@@ -30,10 +32,12 @@ class PostController extends \Controller {
         ]);
     }
 
-    // Lưu bài viết mới
+    // Lưu bài viết mới - CHỈ ADMIN MỚI ĐƯỢC TRUY CẬP
     public function store() {
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: /Mini-4/public/login');
+        // Kiểm tra quyền admin
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+            $_SESSION['error'] = 'Bạn không có quyền thực hiện hành động này. Chỉ admin mới được tạo bài viết.';
+            header('Location: /Mini-4/public/');
             exit;
         }
 
@@ -103,16 +107,15 @@ class PostController extends \Controller {
         ];
 
         $postId = $this->postModel->create($postData);
-        
+
         if ($postId) {
-            $_SESSION['success'] = 'Tạo bài viết thành công!';
+            $_SESSION['success'] = 'Bài viết đã được tạo thành công!';
             header('Location: /Mini-4/public/post/' . $postId);
-            exit;
         } else {
             $_SESSION['error'] = 'Có lỗi xảy ra khi tạo bài viết';
             header('Location: /Mini-4/public/post/create');
-            exit;
         }
+        exit;
     }
 
     // Hiển thị chi tiết bài viết

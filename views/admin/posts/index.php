@@ -28,6 +28,23 @@
 
       <!-- Main Content -->
       <div class="col-md-10 p-4">
+        <!-- Hiển thị thông báo -->
+        <?php if (isset($_SESSION['success'])): ?>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <?php echo htmlspecialchars($_SESSION['success']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+          <?php unset($_SESSION['success']); ?>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error'])): ?>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <?php echo htmlspecialchars($_SESSION['error']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+          <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h2>Quản lý bài viết</h2>
           <a href="/Mini-4/public/admin/posts/create" class="btn btn-primary">
@@ -70,6 +87,9 @@
                         <a href="/Mini-4/public/post/<?php echo $post['id']; ?>" class="btn btn-sm btn-outline-info" target="_blank">
                           <i class="bi bi-eye"></i>
                         </a>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deletePost(<?php echo $post['id']; ?>)">
+                          <i class="bi bi-trash"></i>
+                        </button>
                       </td>
                     </tr>
                   <?php endforeach; ?>
@@ -87,5 +107,12 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function deletePost(id) {
+      if (confirm('Bạn có chắc muốn xóa bài viết này?')) {
+        window.location.href = '/Mini-4/public/admin/posts/' + id + '/delete';
+      }
+    }
+  </script>
 </body>
 </html>
