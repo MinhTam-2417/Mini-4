@@ -75,4 +75,29 @@ class User extends Model {
         $result = $this->db->query($sql);
         return $result[0]['total'] ?? 0;
     }
+    
+    // Reset password methods
+    public function saveResetToken($userId, $token, $expires) {
+        $sql = "UPDATE {$this->table} SET 
+                reset_token = ?, 
+                reset_token_expires = ?, 
+                updated_at = NOW() 
+                WHERE id = ?";
+        return $this->db->execute($sql, [$token, $expires, $userId]);
+    }
+    
+    public function findByResetToken($token) {
+        $sql = "SELECT * FROM {$this->table} WHERE reset_token = ?";
+        $result = $this->db->query($sql, [$token]);
+        return $result ? $result[0] : null;
+    }
+    
+    public function clearResetToken($userId) {
+        $sql = "UPDATE {$this->table} SET 
+                reset_token = NULL, 
+                reset_token_expires = NULL, 
+                updated_at = NOW() 
+                WHERE id = ?";
+        return $this->db->execute($sql, [$userId]);
+    }
 }

@@ -15,7 +15,10 @@ class AuthController extends \Controller {
             exit;
         }
         
-        $this->view('client/login');
+        $this->view('client/login', [
+            'current_page' => 'login',
+            'page_title' => 'Đăng nhập'
+        ]);
     }
     
     public function doLogin() {
@@ -62,7 +65,10 @@ class AuthController extends \Controller {
             exit;
         }
         
-        $this->view('client/register');
+        $this->view('client/register', [
+            'current_page' => 'register',
+            'page_title' => 'Đăng ký'
+        ]);
     }
     
     public function doRegister() {

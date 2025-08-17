@@ -29,7 +29,9 @@ class SearchController extends \Controller {
             'posts' => $posts,
             'categories' => $categories,
             'keyword' => $keyword,
-            'selectedCategory' => $category
+            'selectedCategory' => $category,
+            'current_page' => 'search',
+            'page_title' => 'Tìm kiếm'
         ]);
     }
 }

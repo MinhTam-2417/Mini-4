@@ -1,107 +1,114 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Quản lý bình luận - Admin</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-</head>
-<body>
-  <div class="container-fluid">
-    <div class="row">
-      <!-- Sidebar -->
-      <div class="col-md-2 bg-dark text-white p-3">
-        <h4>⚙️ Admin Panel</h4>
-        <nav class="nav flex-column">
-          <a class="nav-link text-white" href="/Mini-4/public/admin">Dashboard</a>
-          <a class="nav-link text-white" href="/Mini-4/public/admin/posts">Bài viết</a>
-          <a class="nav-link text-white" href="/Mini-4/public/admin/categories">Danh mục</a>
-          <a class="nav-link text-white active" href="/Mini-4/public/admin/comments">Bình luận</a>
-          <a class="nav-link text-white" href="/Mini-4/public/admin/users">Người dùng</a>
-        </nav>
-        <div class="mt-auto">
-          <a href="/Mini-4/public/" class="btn btn-outline-light btn-sm">Về trang chủ</a>
-          <a href="/Mini-4/public/logout" class="btn btn-danger btn-sm">Đăng xuất</a>
-        </div>
+<!-- Comments Management Content --><div class="main-content">    <!-- Debug: Hiển thị session data -->
+    <div style="background: #f0f0f0; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc;">
+      <strong>Debug Session:</strong><br>
+      Success: <?php echo isset($_SESSION['success']) ? htmlspecialchars($_SESSION['success']) : 'Not set'; ?><br>
+      Error: <?php echo isset($_SESSION['error']) ? htmlspecialchars($_SESSION['error']) : 'Not set'; ?><br>
+      User ID: <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'Not set'; ?><br>
+      Role: <?php echo isset($_SESSION['role']) ? $_SESSION['role'] : 'Not set'; ?>
+    </div>
+    
+    
+    <!-- Hiển thị thông báo -->
+    <?php if (isset($_SESSION['success'])): ?>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <?php echo htmlspecialchars($_SESSION['success']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
+      <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
 
-      <!-- Main Content -->
-      <div class="col-md-10 p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2>Quản lý bình luận</h2>
-        </div>
+    <?php if (isset($_SESSION['error'])): ?>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <?php echo htmlspecialchars($_SESSION['error']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
 
-        <div class="card">
-          <div class="card-body">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Người dùng</th>
-                  <th>Bài viết</th>
-                  <th>Nội dung</th>
-                  <th>Trạng thái</th>
-                  <th>Ngày tạo</th>
-                  <th>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php if (!empty($comments)): ?>
-                  <?php foreach ($comments as $comment): ?>
-                    <tr>
-                      <td><?php echo $comment['id']; ?></td>
-                      <td><?php echo htmlspecialchars($comment['username']); ?></td>
-                      <td><?php echo htmlspecialchars($comment['post_title']); ?></td>
-                      <td>
-                        <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                          <?php echo htmlspecialchars($comment['content']); ?>
-                        </div>
-                      </td>
-                      <td>
-                        <span class="badge bg-<?php echo $comment['status'] === 'approved' ? 'success' : ($comment['status'] === 'pending' ? 'warning' : 'danger'); ?>">
-                          <?php 
-                          echo $comment['status'] === 'approved' ? 'Đã duyệt' : 
-                               ($comment['status'] === 'pending' ? 'Chờ duyệt' : 'Từ chối'); 
-                          ?>
-                        </span>
-                      </td>
-                      <td><?php echo date('d/m/Y', strtotime($comment['created_at'])); ?></td>
-                      <td>
-                        <?php if ($comment['status'] === 'pending'): ?>
-                          <a href="/Mini-4/public/admin/comments/<?php echo $comment['id']; ?>/approve" class="btn btn-sm btn-outline-success">
-                            <i class="bi bi-check"></i>
-                          </a>
-                          <a href="/Mini-4/public/admin/comments/<?php echo $comment['id']; ?>/reject" class="btn btn-sm btn-outline-warning">
-                            <i class="bi bi-x"></i>
-                          </a>
-                        <?php endif; ?>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteComment(<?php echo $comment['id']; ?>)">
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  <?php endforeach; ?>
-                <?php else: ?>
-                  <tr>
-                    <td colspan="7" class="text-center">Chưa có bình luận nào.</td>
-                  </tr>
-                <?php endif; ?>
-              </tbody>
-            </table>
-          </div>
+    <div class="page-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="mb-1"><i class="bi bi-chat-dots"></i> Quản lý bình luận</h2>
+          <p class="text-muted mb-0">Quản lý tất cả bình luận trong hệ thống</p>
         </div>
       </div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    function deleteComment(id) {
-      if (confirm('Bạn có chắc muốn xóa bình luận này?')) {
-        window.location.href = '/Mini-4/public/admin/comments/' + id + '/delete';
-      }
-    }
-  </script>
-</body>
-</html>
+    <div class="content-card">
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Người bình luận</th>
+              <th>Nội dung</th>
+              <th>Bài viết</th>
+              <th>Ngày bình luận</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if (!empty($comments)): ?>
+              <?php foreach ($comments as $comment): ?>
+                <tr>
+                  <td><?php echo $comment['id']; ?></td>
+                  <td>
+                    <strong><?php echo htmlspecialchars($comment['username'] ?? ''); ?></strong>
+                  </td>
+                  <td>
+                    <div class="comment-content" title="<?php echo htmlspecialchars($comment['content'] ?? ''); ?>">
+                      <?php echo htmlspecialchars($comment['content'] ?? ''); ?>
+                    </div>
+                  </td>
+                  <td>
+                    <a href="/Mini-4/public/post/<?php echo $comment['post_id'] ?? ''; ?>" target="_blank" class="text-decoration-none">
+                      <?php echo htmlspecialchars($comment['post_title'] ?? ''); ?>
+                    </a>
+                  </td>
+                  <td><?php echo date('d/m/Y H:i', strtotime($comment['created_at'] ?? 'now')); ?></td>
+                  <td>
+                    <a href="/Mini-4/public/post/<?php echo $comment['post_id'] ?? ''; ?>#comment-<?php echo $comment['id']; ?>" class="btn btn-sm btn-outline-info btn-action" target="_blank">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                    <button class="btn btn-sm btn-outline-danger btn-action" onclick="deleteComment(<?php echo $comment['id']; ?>)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <tr>
+                <td colspan="6" class="text-center py-4">
+                  <i class="bi bi-chat-dots display-4 text-muted"></i>
+                  <p class="mt-2 text-muted">Chưa có bình luận nào.</p>
+                </td>
+              </tr>
+            <?php endif; ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- JavaScript for delete functionality -->
+    <script>
+        function deleteComment(commentId) {
+            if (confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
+                // Tạo form để submit
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/Mini-4/public/admin/comments/delete/' + commentId;
+                
+                // Thêm CSRF token nếu cần
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = 'csrf_token';
+                csrfToken.value = '<?php echo isset($_SESSION['csrf_token']) ? $_SESSION['csrf_token'] : ''; ?>';
+                form.appendChild(csrfToken);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+
+</div>

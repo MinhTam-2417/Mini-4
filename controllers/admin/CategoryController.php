@@ -30,7 +30,37 @@ class CategoryController extends \Controller {
 
     // Lưu danh mục mới
     public function store() {
-        // Implementation sẽ thêm sau
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = trim($_POST['name'] ?? '');
+            $description = trim($_POST['description'] ?? '');
+            
+            // Validation
+            if (empty($name)) {
+                $_SESSION['error'] = 'Tên danh mục không được để trống!';
+                header('Location: /Mini-4/public/admin/categories/create');
+                exit;
+            }
+            
+            // Tạo slug từ tên
+            $slug = $this->createSlug($name);
+            
+            $data = [
+                'name' => $name,
+                'slug' => $slug,
+                'description' => $description,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+            
+            if ($this->categoryModel->create($data)) {
+                $_SESSION['success'] = 'Đã tạo danh mục thành công!';
+                header('Location: /Mini-4/public/admin/categories');
+            } else {
+                $_SESSION['error'] = 'Không thể tạo danh mục. Vui lòng thử lại!';
+                header('Location: /Mini-4/public/admin/categories/create');
+            }
+            exit;
+        }
+        
         header('Location: /Mini-4/public/admin/categories');
         exit;
     }
@@ -43,14 +73,57 @@ class CategoryController extends \Controller {
 
     // Cập nhật danh mục
     public function update($id) {
-        // Implementation sẽ thêm sau
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = trim($_POST['name'] ?? '');
+            $description = trim($_POST['description'] ?? '');
+            
+            // Validation
+            if (empty($name)) {
+                $_SESSION['error'] = 'Tên danh mục không được để trống!';
+                header('Location: /Mini-4/public/admin/categories/' . $id . '/edit');
+                exit;
+            }
+            
+            // Tạo slug từ tên
+            $slug = $this->createSlug($name);
+            
+            $data = [
+                'name' => $name,
+                'slug' => $slug,
+                'description' => $description,
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+            
+            if ($this->categoryModel->update($id, $data)) {
+                $_SESSION['success'] = 'Đã cập nhật danh mục thành công!';
+                header('Location: /Mini-4/public/admin/categories');
+            } else {
+                $_SESSION['error'] = 'Không thể cập nhật danh mục. Vui lòng thử lại!';
+                header('Location: /Mini-4/public/admin/categories/' . $id . '/edit');
+            }
+            exit;
+        }
+        
         header('Location: /Mini-4/public/admin/categories');
         exit;
     }
 
+    // Tạo slug từ tên
+    private function createSlug($string) {
+        $string = strtolower($string);
+        $string = preg_replace('/[^a-z0-9\s-]/', '', $string);
+        $string = preg_replace('/[\s-]+/', '-', $string);
+        $string = trim($string, '-');
+        return $string;
+    }
+
     // Xóa danh mục
     public function delete($id) {
-        // Implementation sẽ thêm sau
+        if ($this->categoryModel->delete($id)) {
+            $_SESSION['success'] = 'Đã xóa danh mục thành công!';
+        } else {
+            $_SESSION['error'] = 'Không thể xóa danh mục. Vui lòng thử lại!';
+        }
         header('Location: /Mini-4/public/admin/categories');
         exit;
     }

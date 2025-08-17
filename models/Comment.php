@@ -68,6 +68,18 @@ class Comment extends Model {
         return $this->db->lastInsertID();
     }
 
+    // Thêm comment mới (wrapper cho create)
+    public function addComment($userId, $postId, $content) {
+        $data = [
+            'content' => $content,
+            'user_id' => $userId,
+            'post_id' => $postId,
+            'status' => 'approved' // Tự động approve cho user đã đăng nhập
+        ];
+        
+        return $this->create($data);
+    }
+
     public function getTotalComments() {
         $sql = "SELECT COUNT(*) as total FROM {$this->table}";
         $result = $this->db->query($sql);
@@ -96,6 +108,12 @@ class Comment extends Model {
     public function delete($id) {
         $sql = "DELETE FROM {$this->table} WHERE id = ?";
         return $this->db->execute($sql, [$id]);
+    }
+
+    // Xóa tất cả comments của một bài viết
+    public function deleteByPostId($postId) {
+        $sql = "DELETE FROM {$this->table} WHERE post_id = ?";
+        return $this->db->execute($sql, [$postId]);
     }
 }
 ?>

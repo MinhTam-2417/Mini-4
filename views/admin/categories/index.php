@@ -1,92 +1,111 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Quản lý danh mục - Admin</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-</head>
-<body>
-  <div class="container-fluid">
-    <div class="row">
-      <!-- Sidebar -->
-      <div class="col-md-2 bg-dark text-white p-3">
-        <h4>⚙️ Admin Panel</h4>
-        <nav class="nav flex-column">
-          <a class="nav-link text-white" href="/Mini-4/public/admin">Dashboard</a>
-          <a class="nav-link text-white" href="/Mini-4/public/admin/posts">Bài viết</a>
-          <a class="nav-link text-white active" href="/Mini-4/public/admin/categories">Danh mục</a>
-          <a class="nav-link text-white" href="/Mini-4/public/admin/comments">Bình luận</a>
-          <a class="nav-link text-white" href="/Mini-4/public/admin/users">Người dùng</a>
-        </nav>
-        <div class="mt-auto">
-          <a href="/Mini-4/public/" class="btn btn-outline-light btn-sm">Về trang chủ</a>
-          <a href="/Mini-4/public/logout" class="btn btn-danger btn-sm">Đăng xuất</a>
-        </div>
+<!-- Content --><div class="main-content">
+    <!-- Hiển thị thông báo -->
+    <?php if (isset($_SESSION['success'])): ?>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <?php echo htmlspecialchars($_SESSION['success']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
+      <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
 
-      <!-- Main Content -->
-      <div class="col-md-10 p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2>Quản lý danh mục</h2>
-          <a href="/Mini-4/public/admin/categories/create" class="btn btn-primary">
-            <i class="bi bi-plus"></i> Tạo danh mục mới
-          </a>
-        </div>
+    <?php if (isset($_SESSION['error'])): ?>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <?php echo htmlspecialchars($_SESSION['error']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
 
-        <div class="card">
-          <div class="card-body">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Tên danh mục</th>
-                  <th>Slug</th>
-                  <th>Mô tả</th>
-                  <th>Ngày tạo</th>
-                  <th>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php if (!empty($categories)): ?>
-                  <?php foreach ($categories as $category): ?>
-                    <tr>
-                      <td><?php echo $category['id']; ?></td>
-                      <td><?php echo htmlspecialchars($category['name']); ?></td>
-                      <td><?php echo htmlspecialchars($category['slug']); ?></td>
-                      <td><?php echo htmlspecialchars($category['description'] ?? ''); ?></td>
-                      <td><?php echo date('d/m/Y', strtotime($category['created_at'])); ?></td>
-                      <td>
-                        <a href="/Mini-4/public/admin/categories/<?php echo $category['id']; ?>/edit" class="btn btn-sm btn-outline-primary">
-                          <i class="bi bi-pencil"></i>
-                        </a>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(<?php echo $category['id']; ?>)">
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  <?php endforeach; ?>
-                <?php else: ?>
-                  <tr>
-                    <td colspan="6" class="text-center">Chưa có danh mục nào.</td>
-                  </tr>
-                <?php endif; ?>
-              </tbody>
-            </table>
-          </div>
+    <div class="page-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="mb-1"><i class="bi bi-tags"></i> Quản lý danh mục</h2>
+          <p class="text-muted mb-0">Quản lý các danh mục bài viết</p>
         </div>
+        <a href="/Mini-4/public/admin/categories/create" class="btn btn-primary">
+          <i class="bi bi-plus"></i> Tạo danh mục mới
+        </a>
       </div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    function deleteCategory(id) {
-      if (confirm('Bạn có chắc muốn xóa danh mục này?')) {
-        window.location.href = '/Mini-4/public/admin/categories/' + id + '/delete';
-      }
-    }
-  </script>
-</body>
-</html>
+    <div class="content-card">
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tên danh mục</th>
+              <th>Slug</th>
+              <th>Mô tả</th>
+              <th>Ngày tạo</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if (!empty($categories)): ?>
+              <?php foreach ($categories as $category): ?>
+                <tr>
+                  <td><?php echo $category['id']; ?></td>
+                  <td>
+                    <strong><?php echo htmlspecialchars($category['name']); ?></strong>
+                  </td>
+                  <td>
+                    <code><?php echo htmlspecialchars($category['slug']); ?></code>
+                  </td>
+                  <td>
+                    <?php if ($category['description']): ?>
+                      <?php echo htmlspecialchars($category['description']); ?>
+                    <?php else: ?>
+                      <span class="text-muted">Không có mô tả</span>
+                    <?php endif; ?>
+                  </td>
+                  <td><?php echo date('d/m/Y', strtotime($category['created_at'])); ?></td>
+                  <td>
+                    <a href="/Mini-4/public/admin/categories/<?php echo $category['id']; ?>/edit" class="btn btn-sm btn-outline-primary btn-action">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <button class="btn btn-sm btn-outline-danger btn-action" onclick="deleteCategory(<?php echo $category['id']; ?>)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <tr>
+                <td colspan="6" class="text-center py-4">
+                  <i class="bi bi-inbox display-4 text-muted"></i>
+                  <p class="mt-2 text-muted">Chưa có danh mục nào.</p>
+                  <a href="/Mini-4/public/admin/categories/create" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> Tạo danh mục đầu tiên
+                  </a>
+                </td>
+              </tr>
+            <?php endif; ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- JavaScript for delete functionality -->
+    <script>
+        function deleteCategory(categoryId) {
+            if (confirm('Bạn có chắc chắn muốn xóa danh mục này?')) {
+                // Tạo form để submit
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/Mini-4/public/admin/categories/' + categoryId + '/delete';
+                
+                // Thêm CSRF token nếu cần
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = 'csrf_token';
+                csrfToken.value = '<?php echo isset($_SESSION['csrf_token']) ? $_SESSION['csrf_token'] : ''; ?>';
+                form.appendChild(csrfToken);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+
+</div>

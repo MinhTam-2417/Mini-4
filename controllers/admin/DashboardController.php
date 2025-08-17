@@ -6,12 +6,14 @@ require_once __DIR__ . '/../../models/Post.php';
 require_once __DIR__ . '/../../models/User.php';
 require_once __DIR__ . '/../../models/Comment.php';
 require_once __DIR__ . '/../../models/Category.php';
+require_once __DIR__ . '/../../models/Tag.php';
 
 class DashboardController extends \Controller {
     private $postModel;
     private $userModel;
     private $commentModel;
     private $categoryModel;
+    private $tagModel;
 
     public function __construct() {
         // Kiểm tra quyền admin
@@ -24,6 +26,7 @@ class DashboardController extends \Controller {
         $this->userModel = new \User();
         $this->commentModel = new \Comment();
         $this->categoryModel = new \Category();
+        $this->tagModel = new \Tag();
     }
 
     // Hiển thị dashboard
@@ -33,6 +36,7 @@ class DashboardController extends \Controller {
         $totalUsers = $this->userModel->getTotalUsers();
         $totalComments = $this->commentModel->getTotalComments();
         $totalCategories = $this->categoryModel->getTotalCategories();
+        $totalTags = $this->tagModel->getTotalTags();
         
         // Lấy bài viết mới nhất
         $recentPosts = $this->postModel->getRecentPosts(5);
@@ -45,6 +49,7 @@ class DashboardController extends \Controller {
             'totalUsers' => $totalUsers,
             'totalComments' => $totalComments,
             'totalCategories' => $totalCategories,
+            'totalTags' => $totalTags,
             'recentPosts' => $recentPosts,
             'recentComments' => $recentComments
         ]);

@@ -44,7 +44,18 @@ class UserController extends \Controller {
 
     // Xóa người dùng
     public function delete($id) {
-        // Implementation sẽ thêm sau
+        // Không cho phép xóa chính mình
+        if ($id == $_SESSION['user_id']) {
+            $_SESSION['error'] = 'Không thể xóa tài khoản của chính mình!';
+            header('Location: /Mini-4/public/admin/users');
+            exit;
+        }
+        
+        if ($this->userModel->delete($id)) {
+            $_SESSION['success'] = 'Đã xóa người dùng thành công!';
+        } else {
+            $_SESSION['error'] = 'Không thể xóa người dùng. Vui lòng thử lại!';
+        }
         header('Location: /Mini-4/public/admin/users');
         exit;
     }

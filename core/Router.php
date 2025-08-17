@@ -16,14 +16,8 @@ class Router{
         // Loại bỏ phần /Mini-4/public nếu có
         $uri = preg_replace('#^/Mini-4/public#', '', $uri);
         
-        // Debug
-        echo "<!-- Debug: URI = '$uri', Method = '$method' -->\n";
-        
         foreach ($this->routes as $route){
-            echo "<!-- Debug: Checking route {$route['method']} {$route['pattern']} -->\n";
-            
             if ($route['method'] === $method && preg_match("#^{$route['pattern']}$#", $uri, $matches)) {
-                echo "<!-- Debug: Route matched! -->\n";
                 
                 list($controller, $action) = explode('@', $route['controller']);                
 
@@ -39,6 +33,14 @@ class Router{
                 require_once __DIR__ . '/../models/Post.php';
                 require_once __DIR__ . '/../models/Category.php';
                 require_once __DIR__ . '/../models/Comment.php';
+                require_once __DIR__ . '/../models/Like.php';
+                require_once __DIR__ . '/../models/Tag.php';
+                require_once __DIR__ . '/../models/SavedPost.php';
+                require_once __DIR__ . '/../models/SharedPost.php';
+                require_once __DIR__ . '/../models/HiddenPost.php';
+                
+                // Require controller files
+                require_once __DIR__ . '/../controllers/client/CommentController.php';
                 
                 // Xử lý đường dẫn controller
                 $controllerFile = '';
@@ -59,9 +61,6 @@ class Router{
                     $controllerClass = 'client\\' . $controller;
                 }
                 
-                echo "<!-- Debug: Controller file = '$controllerFile' -->\n";
-                echo "<!-- Debug: Controller class = '$controllerClass' -->\n";
-                
                 if (file_exists($controllerFile)) {
                     require_once $controllerFile;
                     
@@ -69,11 +68,8 @@ class Router{
                     call_user_func_array([$controllerInstance, $action], $matches);
                     return;
                 } else {
-                    // Debug: hiển thị thông tin lỗi
-                    echo "Controller file not found: $controllerFile<br>";
-                    echo "Controller class: $controllerClass<br>";
-                    echo "URI: $uri<br>";
-                    echo "Method: $method<br>";
+                    http_response_code(404);
+                    echo "Controller not found";
                     return;
                 }
             }

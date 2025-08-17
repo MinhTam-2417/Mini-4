@@ -32,7 +32,9 @@ class ProfileController extends \Controller {
         $this->view('client/profile', [
             'user' => $user,
             'posts' => $userPosts,
-            'comments' => $userComments
+            'comments' => $userComments,
+            'current_page' => 'profile',
+            'page_title' => 'Hồ sơ cá nhân'
         ]);
     }
 
@@ -139,6 +141,28 @@ class ProfileController extends \Controller {
 
         header('Location: /Mini-4/public/profile');
         exit;
+    }
+
+    // Hiển thị chi tiết user theo ID
+    public function show($userId) {
+        $user = $this->userModel->findById($userId);
+        if (!$user) {
+            $_SESSION['error'] = 'Không tìm thấy người dùng';
+            header('Location: /Mini-4/public/');
+            exit;
+        }
+
+        // Lấy bài viết của user
+        $userPosts = $this->postModel->getPostsByUser($userId);
+        
+        // Lấy comments của user
+        $userComments = $this->commentModel->getCommentsByUser($userId);
+
+        $this->view('client/user', [
+            'user' => $user,
+            'posts' => $userPosts,
+            'comments' => $userComments
+        ]);
     }
 }
 ?> 

@@ -39,7 +39,11 @@ class CommentController extends \Controller {
 
     // Xóa bình luận
     public function delete($id) {
-        $this->commentModel->delete($id);
+        if ($this->commentModel->delete($id)) {
+            $_SESSION['success'] = 'Đã xóa bình luận thành công!';
+        } else {
+            $_SESSION['error'] = 'Không thể xóa bình luận. Vui lòng thử lại!';
+        }
         header('Location: /Mini-4/public/admin/comments');
         exit;
     }

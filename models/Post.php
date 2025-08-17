@@ -17,6 +17,32 @@ class Post extends Model {
         return $this->db->query($sql);
     }
 
+    // Lấy tất cả bài viết đã publish với thông tin like, save, share
+    public function getAllPublishedWithStats($userId = null) {
+        $sql = "SELECT p.*, u.username as author_name, c.name as category_name,
+                       (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as like_count,
+                       (SELECT COUNT(*) FROM saved_posts WHERE post_id = p.id) as save_count,
+                       (SELECT COUNT(*) FROM shared_posts WHERE post_id = p.id) as share_count";
+        
+        if ($userId) {
+            $sql .= ", (SELECT COUNT(*) FROM likes WHERE post_id = p.id AND user_id = ?) as user_liked,
+                       (SELECT COUNT(*) FROM saved_posts WHERE post_id = p.id AND user_id = ?) as user_saved";
+            $sql .= " FROM posts p 
+                      LEFT JOIN users u ON p.user_id = u.id 
+                      LEFT JOIN categories c ON p.category_id = c.id 
+                      WHERE p.status = 'published' 
+                      ORDER BY p.created_at DESC";
+            return $this->db->query($sql, [$userId, $userId]);
+        } else {
+            $sql .= " FROM posts p 
+                      LEFT JOIN users u ON p.user_id = u.id 
+                      LEFT JOIN categories c ON p.category_id = c.id 
+                      WHERE p.status = 'published' 
+                      ORDER BY p.created_at DESC";
+            return $this->db->query($sql);
+        }
+    }
+
     // Lấy bài viết theo ID với thông tin user và category
     public function findWithDetails($id) {
         $sql = "SELECT p.*, u.username as author_name, u.full_name as author_full_name, 
@@ -145,6 +171,152 @@ class Post extends Model {
         $sql = "SELECT * FROM {$this->table} WHERE id = ?";
         $result = $this->db->query($sql, [$id]);
         return $result ? $result[0] : null;
+    }
+
+    public function delete($id) {
+        $sql = "DELETE FROM {$this->table} WHERE id = ?";
+        return $this->db->execute($sql, [$id]);
+    }
+
+    public function update($id, $data) {
+        $sql = "UPDATE {$this->table} SET 
+                title = ?, 
+                slug = ?, 
+                content = ?, 
+                excerpt = ?, 
+                featured_image = ?, 
+                image_fit = ?, 
+                category_id = ?, 
+                status = ?, 
+                updated_at = NOW() 
+                WHERE id = ?";
+        
+        return $this->db->execute($sql, [
+            $data['title'],
+            $data['slug'],
+            $data['content'],
+            $data['excerpt'],
+            $data['featured_image'],
+            $data['image_fit'],
+            $data['category_id'],
+            $data['status'],
+            $id
+        ]);
+    }
+
+    // Lấy bài viết với thông tin like
+    public function findWithLikeInfo($id, $userId = null) {
+        $sql = "SELECT p.*, u.username as author_name, u.full_name as author_full_name, 
+                       c.name as category_name, c.slug as category_slug,
+                       (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as like_count";
+        
+        if ($userId) {
+            $sql .= ", (SELECT COUNT(*) FROM likes WHERE post_id = p.id AND user_id = ?) as user_liked";
+            $sql .= " FROM {$this->table} p 
+                    LEFT JOIN users u ON p.user_id = u.id 
+                    LEFT JOIN categories c ON p.category_id = c.id 
+                    WHERE p.id = ? AND p.status = 'published'";
+            $result = $this->db->query($sql, [$userId, $id]);
+        } else {
+            $sql .= ", 0 as user_liked";
+            $sql .= " FROM {$this->table} p 
+                    LEFT JOIN users u ON p.user_id = u.id 
+                    LEFT JOIN categories c ON p.category_id = c.id 
+                    WHERE p.id = ? AND p.status = 'published'";
+            $result = $this->db->query($sql, [$id]);
+        }
+        
+        if ($result) {
+            $post = $result[0];
+            $post['user_liked'] = $userId ? ($post['user_liked'] > 0) : false;
+            return $post;
+        }
+        return null;
+    }
+
+    // Lấy tất cả bài viết với thông tin like
+    public function getAllPublishedWithLikes($userId = null) {
+        $sql = "SELECT p.*, u.username as author_name, c.name as category_name,
+                       (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as like_count";
+        
+        if ($userId) {
+            $sql .= ", (SELECT COUNT(*) FROM likes WHERE post_id = p.id AND user_id = ?) as user_liked";
+            $sql .= " FROM {$this->table} p 
+                    LEFT JOIN users u ON p.user_id = u.id 
+                    LEFT JOIN categories c ON p.category_id = c.id 
+                    WHERE p.status = 'published'
+                    ORDER BY p.created_at DESC";
+            $posts = $this->db->query($sql, [$userId]);
+        } else {
+            $sql .= ", 0 as user_liked";
+            $sql .= " FROM {$this->table} p 
+                    LEFT JOIN users u ON p.user_id = u.id 
+                    LEFT JOIN categories c ON p.category_id = c.id 
+                    WHERE p.status = 'published'
+                    ORDER BY p.created_at DESC";
+            $posts = $this->db->query($sql);
+        }
+        
+        if ($userId && $posts) {
+            foreach ($posts as &$post) {
+                $post['user_liked'] = $post['user_liked'] > 0;
+            }
+        }
+        
+        return $posts;
+    }
+    
+    // Lấy bài viết với thông tin tags
+    public function findWithTags($id) {
+        $sql = "SELECT p.*, u.username as author_name, u.full_name as author_full_name, 
+                       c.name as category_name, c.slug as category_slug
+                FROM {$this->table} p 
+                LEFT JOIN users u ON p.user_id = u.id 
+                LEFT JOIN categories c ON p.category_id = c.id 
+                WHERE p.id = ? AND p.status = 'published'";
+        $result = $this->db->query($sql, [$id]);
+        
+        if ($result) {
+            $post = $result[0];
+            // Lấy tags của bài viết
+            $post['tags'] = $this->getTagsByPost($id);
+            return $post;
+        }
+        return null;
+    }
+    
+    // Lấy tags của bài viết
+    public function getTagsByPost($postId) {
+        $sql = "SELECT t.* FROM tags t 
+                INNER JOIN post_tags pt ON t.id = pt.tag_id 
+                WHERE pt.post_id = ? 
+                ORDER BY t.name ASC";
+        return $this->db->query($sql, [$postId]);
+    }
+    
+    // Lấy bài viết theo tag
+    public function getByTag($tagId) {
+        $sql = "SELECT p.*, u.username as author_name, c.name as category_name 
+                FROM {$this->table} p 
+                INNER JOIN post_tags pt ON p.id = pt.post_id 
+                LEFT JOIN users u ON p.user_id = u.id 
+                LEFT JOIN categories c ON p.category_id = c.id 
+                WHERE pt.tag_id = ? AND p.status = 'published' 
+                ORDER BY p.created_at DESC";
+        return $this->db->query($sql, [$tagId]);
+    }
+    
+    // Lấy bài viết với tags
+    public function getAllPublishedWithTags($userId = null) {
+        $posts = $this->getAllPublishedWithLikes($userId);
+        
+        if ($posts) {
+            foreach ($posts as &$post) {
+                $post['tags'] = $this->getTagsByPost($post['id']);
+            }
+        }
+        
+        return $posts;
     }
 }
 ?>

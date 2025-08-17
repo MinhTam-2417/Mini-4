@@ -3,8 +3,10 @@ Options -Indexes
 
 # Chuyển hướng tất cả request đến public/
 RewriteEngine On
-RewriteCond %{REQUEST_URI} !^/Mini-4/public/
-RewriteRule ^(.*)$ /Mini-4/public/$1 [L,R=301]
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /Mini-4/public/$1 [L]
 
 # Bảo mật - ẩn các file nhạy cảm
 <Files "*.sql">

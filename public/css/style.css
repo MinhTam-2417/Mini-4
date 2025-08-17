@@ -13,3 +13,117 @@ footer{
     padding-top: 20px 0;
     
 }
+
+/* Styles cho trang Bài viết đã thích */
+.nav-link.active {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    color: #dc3545 !important;
+    font-weight: 600;
+}
+
+.nav-link.active i {
+    color: #dc3545;
+}
+
+.post-footer {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e9ecef;
+}
+
+.like-stats-card {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    border: none;
+}
+
+.like-stats-card .card-title {
+    color: white;
+}
+
+.empty-likes {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-likes i {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 20px;
+}
+
+.liked-posts-count {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Animation cho nút like */
+.like-btn {
+    transition: all 0.3s ease;
+}
+
+.like-btn:hover {
+    transform: scale(1.05);
+}
+
+.like-btn.liked {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.like-btn.liked:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* Responsive cho trang likes */
+@media (max-width: 768px) {
+    .sidebar-right {
+        margin-top: 20px;
+    }
+    
+    .post-card {
+        margin-bottom: 20px;
+    }
+    
+    .post-meta {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* Giới hạn kích thước nút */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.2rem;
+}
+
+.like-btn, .save-btn, .hide-btn, .share-btn {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0.25rem !important;
+    font-size: 0.875rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: auto !important;
+    max-width: 32px !important;
+}
+
+.like-btn i, .save-btn i, .hide-btn i, .share-btn i {
+    font-size: 0.875rem !important;
+}
+
+/* Giảm scale khi hover */
+.like-btn:hover, .save-btn:hover, .hide-btn:hover, .share-btn:hover {
+    transform: scale(1.02) !important;
+}
+
+/* Đảm bảo các nút không bị to ra */
+.post-actions .btn {
+    margin: 0 2px;
+    flex-shrink: 0;
+}
